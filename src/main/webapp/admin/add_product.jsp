@@ -4,6 +4,8 @@
     Author     : ADMIN
 --%>
 
+<%@page import="model.Loai"%>
+<%@page import="java.util.ArrayList"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <jsp:include page="../shared/header.jsp" />
@@ -30,6 +32,14 @@
             <label>Thể loại</label>
             <select name="maloai" class="form-control">      
                 <option value="" disabled="">==Chọn thể loại==</option>
+                <%
+                    ArrayList<Loai> dsLoai=(ArrayList<Loai>)request.getAttribute("dsLoai");
+                    for(Loai t :dsLoai){
+                %>
+                <option value="<%=t.getMaloai() %>"><%=t.getTenloai() %></option>>
+                <%
+                    }
+                %>
             </select>
         </div>        
         <button type="submit" class="btn btn-primary">Save</button>

@@ -5,6 +5,7 @@
 package controller;
 
 import dao.HoaDAO;
+import dao.LoaiDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -34,7 +35,7 @@ public class ManageProduct extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         HoaDAO hoaDao = new HoaDAO();
-
+        LoaiDAO loaiDao=new LoaiDAO();
         String action = "LIST";
         if (request.getParameter("action") != null) {
             action = request.getParameter("action");
@@ -49,6 +50,7 @@ public class ManageProduct extends HttpServlet {
             case "ADD":
                 //Trả về giao diện thêm mới
                 //System.out.println("ADD");
+                request.setAttribute("dsLoai", loaiDao.getAll());//Chuyển dữ liệu cho jsp
                 request.getRequestDispatcher("admin/add_product.jsp").forward(request, response);
                 break;
             case "EDIT":
