@@ -13,6 +13,9 @@
 
 <jsp:include page="../shared/nav.jsp" />
 
+<jsp:include page="../shared/notification.jsp"/>
+
+
 
 <div class="container">
     <h2> Danh sách sản phẩm</h2>
@@ -29,18 +32,21 @@
             <th>Action</th>
         </tr>  
         <%
-             DecimalFormat fmt = new DecimalFormat("#,##0");
+            DecimalFormat fmt = new DecimalFormat("#,##0");
             ArrayList<Hoa> dsHoa = (ArrayList<Hoa>) request.getAttribute("dsHoa");
             for (Hoa x : dsHoa) {
         %>
         <tr>
             <td><%=x.getTenhoa()%></td>
-            <td><%=fmt.format(x.getGia()) %></td>
+            <td><%=fmt.format(x.getGia())%></td>
             <td> <img src="assets/images/products/<%=x.getHinh()%>" style="width: 100px">  </td>
             <td><%=x.getMaloai()%></td>
             <td>
                 <a href="ManageProduct?action=EDIT&mahoa=<%=x.getMahoa()%>" class="btn btn-secondary"> <i class="bi bi-pencil-square"></i> Sửa</a>
-                <a href="ManageProduct?action=DELETE&mahoa=<%=x.getMahoa()%>" class="btn btn-danger"> <i class="bi bi-trash"></i> Xoá</a>
+                <a href="ManageProduct?action=DELETE&mahoa=<%=x.getMahoa()%>" class="btn btn-danger"
+                   onclick="return confirm('Bạn có đồng ý xóa không ?')"
+
+                   > <i class="bi bi-trash"></i> Xoá</a>
             </td>
         </tr>          
         <%

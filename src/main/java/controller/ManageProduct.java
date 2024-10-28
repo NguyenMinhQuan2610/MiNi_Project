@@ -9,16 +9,22 @@ import dao.LoaiDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import java.nio.file.Paths;
+import java.sql.Date;
+import model.Hoa;
 
 /**
  *
  * @author mygam
  */
 @WebServlet(name = "ManageProduct", urlPatterns = {"/ManageProduct"})
+@MultipartConfig
 public class ManageProduct extends HttpServlet {
 
     /**
@@ -35,7 +41,9 @@ public class ManageProduct extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         HoaDAO hoaDao = new HoaDAO();
-        LoaiDAO loaiDao=new LoaiDAO();
+        LoaiDAO loaiDao = new LoaiDAO();
+        String method = request.getMethod();
+
         String action = "LIST";
         if (request.getParameter("action") != null) {
             action = request.getParameter("action");
@@ -50,16 +58,82 @@ public class ManageProduct extends HttpServlet {
             case "ADD":
                 //Trả về giao diện thêm mới
                 //System.out.println("ADD");
-                request.setAttribute("dsLoai", loaiDao.getAll());//Chuyển dữ liệu cho jsp
-                request.getRequestDispatcher("admin/add_product.jsp").forward(request, response);
+                if (method.equals("GET")) {
+                    //Trả về giao diện
+                    request.setAttribute("dsLoai", loaiDao.getAll());//Chuyển dữ liệu cho jsp
+                    request.getRequestDispatcher("admin/add_product.jsp").forward(request, response);
+                } else if (method.equals("POST")) {
+                    //Xử lý thêm mới
+                    //B1. Lấy thông tin sản phẩm cần thêm
+                    String tenhoa = request.getParameter("tenhoa");
+                    double gia = Double.parseDouble(request.getParameter("gia"));
+                    Part part = request.getPart("hinh");
+                    int maloai = Integer.parseInt(request.getParameter("maloai"));
+                    //B2.Xử lý upload file hình
+                    String realPatch = request.getServletContext().getRealPath("assets/images/products");//Đường dẫn tuyệt đối
+                    String filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();//Tên 
+                    part.write(realPatch + "/" + filename);
+                    //Thêm sản phẩm vào cơ sở dữ liệu
+                    Hoa objInsert = new Hoa(0, tenhoa, gia, filename, maloai, new Date(new java.util.Date().getTime()));
+                    if (hoaDao.Insert(objInsert)) {
+                        //Thông báo thêm thất bại
+                        request.setAttribute("error", "Thêm sản phẩm thất bại");
+                    } else {
+                        //Thông báo thêm thành công
+                        request.setAttribute("success", "Đã thêm sản phẩm thành công");
+                    }
+                    //Chuyển tiếp người dùng về action=LIST để liệt kê lại danh sách sản phẩm
+                    request.getRequestDispatcher("ManageProduct?action=LIST").forward(request, response);
+                }
                 break;
             case "EDIT":
                 //Trả về giao diện cập nhật sản phẩm
-                System.out.println("EDIT");
+                if (method.equalsIgnoreCase("get")) {
+                    int mahoa = Integer.parseInt(request.getParameter("mahoa"));
+                    request.setAttribute("hoa", hoaDao.getById(mahoa));
+                    request.setAttribute("dsLoai", loaiDao.getAll());
+                    request.getRequestDispatcher("admin/edit_product.jsp").forward(request, response);
+                } else if (method.equalsIgnoreCase("post")) {
+                    int mahoa=Integer.parseInt(request.getParameter("mahoa"));
+                    String tenhoa = request.getParameter("tenhoa");
+                    double gia = Double.parseDouble(request.getParameter("gia"));
+                    Part part = request.getPart("hinh");
+                    int maloai = Integer.parseInt(request.getParameter("maloai"));
+                    String filename = request.getParameter("oldImg");
+                    //B2.Xử lý upload file hình(nếu có)
+                    if (part.getSize() > 0) {
+                        String realPatch = request.getServletContext().getRealPath("assets/images/products");//Đường dẫn tuyệt đối
+                        filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();//Tên 
+                        part.write(realPatch + "/" + filename);
+                    }
+                    //Thêm sản phẩm vào cơ sở dữ liệu
+                    Hoa objUpdate = new Hoa(mahoa, tenhoa, gia, filename, maloai, new Date(new java.util.Date().getTime()));
+                    if (hoaDao.Update(objUpdate)) {
+                        //Thông báo thêm thất bại
+                        request.setAttribute("error", "Cập nhật sản phẩm thất bại");
+                    } else {
+                        //Thông báo thêm thành công
+                        request.setAttribute("success", "Đã cập nhật sản phẩm thành công");
+                    }
+                    //Chuyển tiếp người dùng về action=LIST để liệt kê lại danh sách sản phẩm
+                    request.getRequestDispatcher("ManageProduct?action=LIST").forward(request, response);
+                }
                 break;
             case "DELETE":
                 //Trả về giao diện xóa sản phẩm
-                System.out.println("DELETE");
+                //b1. Lấy mã sản phẩm 
+                int mahoa = Integer.parseInt(request.getParameter("mahoa"));
+                //b2.Xóa sản phẩm
+                if (hoaDao.Delete(mahoa)) {
+                    //Thông báo thêm thất bại
+                    request.setAttribute("error", "Xóa sản phẩm thất bại");
+                } else {
+                    //Thông báo thêm thành công
+
+                    request.setAttribute("success", "Xóa sản phẩm Thành công");
+                }
+                //Chuyển tiếp người dùng về action=LIST để liệt kê lại danh sách sản phẩm
+                request.getRequestDispatcher("ManageProduct?action=LIST").forward(request, response);
                 break;
         }
 
