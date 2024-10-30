@@ -54,16 +54,25 @@
         %>
     </table>
     <ul class="pagination justify-content-center">
-    <%
-        int pagesum=(int)request.getAttribute("pagesum");
-        int pageIndex=(int)request.getAttribute("pageIndex");
-        for(int i=1;i<=pagesum;i++){
-    %>
-    <li class="page-item <%=pageIndex==i?"active":"" %> " ><a class="page-link" href="ManageProduct?page=<%=i %>"><%=i%></a></li> 
-    <%
-        }
-    %>
+        <%
+            int pagesum = (int) request.getAttribute("pagesum");
+            int pageIndex = (int) request.getAttribute("pageIndex");
+        %>
+        <li class="page-item <%=pageIndex == 1 ? "disable" : ""%>"><a class="page-link" href="ManageProduct?page=1">First</a></li>
+        <li class="page-item <%=pageIndex == 1 ? "disable" : ""%>"><a class="page-link" href="ManageProduct?page=<%=pageIndex == pagesum ? pageIndex - 1 : pageIndex%>">Previous</a></li>
+
+        <%
+            for (int i = 1; i <= pagesum; i++) {
+        %>
+        <li class="page-item <%=pageIndex == i ? "active" : ""%> " ><a class="page-link" href="ManageProduct?page=<%=i%>"><%=i%></a></li> 
+            <%
+                }
+            %>
+        <li class="page-item <%=pageIndex == pagesum ? "disable" : ""%>"><a class="page-link" href="ManageProduct?page=<%=pageIndex < pagesum ? pageIndex + 1 : pageIndex%>">Next</a></li>
+        <li class="page-item <%=pageIndex == pagesum ? "disable" : ""%>"><a class="page-link" href="ManageProduct?page=<%=pagesum %>">LAST</a></li>
+
     </ul>
+
 </div>
 
 <jsp:include page="../shared/footer.jsp" />
