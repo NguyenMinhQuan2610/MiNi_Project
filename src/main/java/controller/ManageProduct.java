@@ -50,9 +50,19 @@ public class ManageProduct extends HttpServlet {
         }
         switch (action) {
             case "LIST":
+                int pageSize = 5;
+                int pageIndex = 1;
+
+                if (request.getParameter("page") != null) {
+                    pageIndex = Integer.parseInt(request.getParameter("page"));
+                }
+                //Tổng số trang
+                int pagesum = (int) Math.ceil((double) hoaDao.getAll().size() / pageSize);
                 //Trả về giao diện liệt kê danh sách sản phẩm
                 //System.out.println("LIST");
-                request.setAttribute("dsHoa", hoaDao.getAll());
+                request.setAttribute("dsHoa", hoaDao.getByPage(pageIndex, pageSize));
+                request.setAttribute("pagesum", pagesum);
+                request.setAttribute("pageIndex", pageIndex);
                 request.getRequestDispatcher("admin/list_product.jsp").forward(request, response);
                 break;
             case "ADD":
@@ -94,7 +104,7 @@ public class ManageProduct extends HttpServlet {
                     request.setAttribute("dsLoai", loaiDao.getAll());
                     request.getRequestDispatcher("admin/edit_product.jsp").forward(request, response);
                 } else if (method.equalsIgnoreCase("post")) {
-                    int mahoa=Integer.parseInt(request.getParameter("mahoa"));
+                    int mahoa = Integer.parseInt(request.getParameter("mahoa"));
                     String tenhoa = request.getParameter("tenhoa");
                     double gia = Double.parseDouble(request.getParameter("gia"));
                     Part part = request.getPart("hinh");

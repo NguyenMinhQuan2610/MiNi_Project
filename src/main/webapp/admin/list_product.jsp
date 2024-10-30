@@ -53,6 +53,17 @@
             }
         %>
     </table>
+    <ul class="pagination justify-content-center">
+    <%
+        int pagesum=(int)request.getAttribute("pagesum");
+        int pageIndex=(int)request.getAttribute("pageIndex");
+        for(int i=1;i<=pagesum;i++){
+    %>
+    <li class="page-item <%=pageIndex==i?"active":"" %> " ><a class="page-link" href="ManageProduct?page=<%=i %>"><%=i%></a></li> 
+    <%
+        }
+    %>
+    </ul>
 </div>
 
 <jsp:include page="../shared/footer.jsp" />
